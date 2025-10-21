@@ -4,7 +4,7 @@ from supabase import create_client, Client
 import os
 
 url = "https://gvndeepzsoohrushohdn.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2bmRlZXB6c29vaHJ1c2hvaGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NDI1NjEsImV4cCI6MjA3NjUxODU2MX0.DeZBvBV_1IRsjCx-eBIdRIvCqRi1i8Y3cnqhld2JDT8"
+key = "sb_secret_n6vMn7ghJ22xhICePKJErQ_1ibfx-Nm"
 
 # Supabase config
 SUPABASE_URL = os.getenv("SUPABASE_URL", url)

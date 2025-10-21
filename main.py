@@ -1,18 +1,51 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from supabase import create_client, Client
-
-app = FastAPI()
+import os
 
 url = "https://gvndeepzsoohrushohdn.supabase.co"
 key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2bmRlZXB6c29vaHJ1c2hvaGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NDI1NjEsImV4cCI6MjA3NjUxODU2MX0.DeZBvBV_1IRsjCx-eBIdRIvCqRi1i8Y3cnqhld2JDT8"
-supabase: Client = create_client(url, key)
 
-@app.get("/items")
-def get_items():
-    res = supabase.table("items").select("*").execute()
-    return res.data
+# Supabase config
+SUPABASE_URL = os.getenv("SUPABASE_URL", url)
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", key)
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@app.post("/items")
-def add_item(name: str, description: str):
-    res = supabase.table("items").insert({"name": name, "description": description}).execute()
-    return {"message": "Item added", "data": res.data}
+app = FastAPI()
+
+# Model
+class Note(BaseModel):
+    title: str
+    content: str
+
+# CREATE
+@app.post("/notes")
+def create_note(note: Note):
+    response = supabase.table("notes").insert({
+        "title": note.title,
+        "content": note.content
+    }).execute()
+    return {"message": "Note added", "data": response.data}
+
+# READ
+@app.get("/notes")
+def get_notes():
+    response = supabase.table("notes").select("*").execute()
+    return response.data
+
+# UPDATE
+@app.put("/notes/{note_id}")
+def update_note(note_id: int, note: Note):
+    response = supabase.table("notes").update({
+        "title": note.title,
+        "content": note.content
+    }).eq("id", note_id).execute()
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return {"message": "Note updated", "data": response.data}
+
+# DELETE
+@app.delete("/notes/{note_id}")
+def delete_note(note_id: int):
+    response = supabase.table("notes").delete().eq("id", note_id).execute()
+    return {"message": "Note deleted", "data": response.data}
